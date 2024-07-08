@@ -1,0 +1,79 @@
+########################################################################
+.globl main
+.data
+str1:.asciiz " Enter the numbers :\n"
+str2:.asciiz " The Array :\n"
+str3:.asciiz "\n"
+.text
+################################# Main ########################################
+main:
+################################# text massage print ##########################
+li $v0 , 4                          #call code to print str1 
+la $a0 , str1						#address of str1
+syscall 							#End 
+################################# Enter Number in memory ######################
+add $t0 , $sp , $0                  #basic address for sp in t0
+li $t1 , -1 						# End Numb of Array (-1)
+li $s1 , 1 							# s1 = 1
+add $s2 , $0, $0 					#counter to index of Array
+################################# loop to Enter Array ######################### 
+loop_1 :
+addi $sp , $sp , -4					#to store element in it
+addi $s2 , $s2 , 1   				#counter ++
+li $v0 , 5							#to read int
+syscall
+or $t2 ,$0, $v0 					#move value in t2
+sw $t2 , 0($sp)						#stor value in memeory
+bne $t2 ,$t1 , loop_1
+################################ End of loop ###################################
+addi $t3 , $t0 , 0					#use it to move in memeory (t3)
+ori $s4 , $s2 , 0 					# s4=s2 
+################################ first while loop ##############################
+loop_3 :
+slt $t6 , $0 , $s2 				    # counter_1 (s2) >= 1
+bne $t6 ,$s1 , printend 			#Exit from compear
+addi $t3 , $t3 , -4					
+addi $t4 , $t3 , 0
+lw $t2 , 0($t3)						#lw first value will compear with it in t2
+addi $s3 , $s2 , -1					# counter_2 (s3) = counter_1 (s2) - 1
+################################ second while loop #############################
+loop_2 :
+slt $t6 , $0 , $s3 				# counter_2 (s3) >= 1
+bne $t6 , $s1 , loop_0 
+addi $t4 , $t4 , -4 				#move for second address in t4
+lw $s0 , 0($t4)						#lw second value will compear with it in s0 
+addi $s3 ,$s3 , -1                  # counter_2 --
+slt $t5 , $s0 , $t2 				#compear Arr[n] >= Arr[n-1]
+beq $t5 , $s1 , loop_2				#if condition is true
+################################# Swap ##########################################
+sw $s0 , 0($t3)						#store large value in address of t3
+sw $t2 , 0($t4)
+lw $s0 , 0($t4)
+lw $t2 , 0($t3)
+j loop_2
+loop_0 :
+addi $s2 ,$s2 , -1                  # counter_1 --
+j loop_3
+################################# print #########################################
+################################# text massage print ############################
+printend :
+li $v0 , 4                          #call code to print str2 
+la $a0 ,str2						#address of str2
+syscall 							#End 
+################################# print Array ####################################
+print_0 :
+slt $t7 , $s1 , $s4 				
+bne $t7 , $s1 , Exit_0
+addi $t0 , $t0 -4 
+lw $a0 , 0($t0)
+li $v0, 1 							# system call code for print_int
+syscall 							# print it
+li $v0 , 4                          #call code to print str3 
+la $a0 , str3						#address of str3
+syscall 							#End 
+addi $s4 ,$s4 , -1 
+j print_0 
+##################################End of #########################################
+Exit_0 :
+li $v0 , 10
+syscall # Exit
